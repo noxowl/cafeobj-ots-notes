@@ -1,0 +1,64 @@
+mod! COUNTER-OTS {
+    pr(NAT)
+    -- module natural number counter
+    [State]
+
+    -- construction operator
+    op mk : Nat -> State .
+
+    -- observation operator
+    bop cnt : State -> Nat .
+
+    -- action operator
+    bop inc : State -> State .
+    bop dec : State -> State .
+
+    op init : -> State .
+
+    var N : Nat .
+    var S : State .
+
+    eq init = mk(0) .
+    eq cnt(mk(N)) = N .
+    
+    -- eq inc(mk(N)) = mk(N + 1) .
+    ceq inc(mk(N)) = mk(N + 1) if N < 10 .
+    ceq inc(mk(N)) = mk(N) if N >= 10 .
+
+    ceq dec(mk(N)) = mk(p(N)) if N > 0 .
+    ceq dec(mk(N)) = mk(N) if N == 0 .
+
+    op inv : State -> Bool .
+    eq inv(S) = ((cnt(S) >= 0) and (cnt(S) <= 10)) .
+}
+
+open COUNTER-OTS .
+    red cnt(init) .
+    red cnt(inc(init)) .
+    red cnt(inc(inc(init))) .
+    red cnt(inc(inc(inc(inc(inc(inc(inc(inc(inc(inc(init))))))))))) .
+    red cnt(inc(inc(inc(inc(inc(inc(inc(inc(inc(inc(inc(init)))))))))))) .
+close
+
+mod! COUNTER-OTS-INV-PROOF {
+    pr(COUNTER-OTS)
+
+    var N : Nat .
+
+    op istep : Nat -> Bool .
+    eq istep(N) = (cnt(mk(N)) >= 0) and (cnt(mk(N)) <= 10) implies ((cnt(inc(mk(N))) >= 0) and (cnt(inc(mk(N))) <= 10) and (cnt(dec(mk(N))) >= 0) and (cnt(dec(mk(N))) <= 10)) .
+}
+
+open COUNTER-OTS-INV-PROOF .
+    -- base case
+    red inv(init) .
+
+    -- inductive step
+    red istep(0) .
+    red istep(5) .
+
+    red istep(9) .
+    red istep(10) .
+
+    red istep(11) .
+close
