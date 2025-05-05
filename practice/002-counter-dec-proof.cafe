@@ -1,0 +1,37 @@
+in 001-counter-ots-proof.cafe
+
+mod! COUNTER-OTS-SPLIT-PROOF {
+    pr(COUNTER-OTS)
+
+    var N : Nat .
+    var S : State .
+
+    op valid-cnt : State -> Bool .
+    eq valid-cnt(S) = ((cnt(S) >= 0) and (cnt(S) <= 10)) .
+
+    -- proof for inc
+    op istep-inc : Nat -> Bool .
+    eq istep-inc(N) = valid-cnt(mk(N)) implies valid-cnt(inc(mk(N))) .  
+
+    -- proof for dec
+    op istep-dec : Nat -> Bool .
+    eq istep-dec(N) = valid-cnt(mk(N)) implies valid-cnt(dec(mk(N))) .
+
+    -- combined induction step
+    op istep : Nat -> Bool .
+    eq istep(N) = istep-inc(N) and istep-dec(N) .
+}
+
+open COUNTER-OTS-SPLIT-PROOF .
+    -- base case
+    red inv(init) .
+
+    -- inductive cases
+    red istep-inc(5) .
+    red istep-dec(5) .
+    red istep(5) .
+
+    -- inductive edge cases
+    red istep(0) .
+    red istep(10) .
+close
